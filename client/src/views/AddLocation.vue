@@ -37,14 +37,19 @@
       <span class="field-name">Timestamp</span>
       <span class="field-value">{{ formattedTimestamp }}</span>
     </div>
+    <asset-icon class="submit-btn" name="next" @click="submit" />
   </div>
 </template>
 
 <script>
 import StorageService from '@/services/StorageService';
+import DatabaseService from '@/services/DatabaseService';
 import { CATEGORIES } from '@/constants';
 
+import AssetIcon from '@/components/AssetIcon.vue';
+
 export default {
+  components: { AssetIcon },
   props: {
     file: File,
     timestamp: Number
@@ -59,6 +64,7 @@ export default {
   },
   computed: {
     formattedTimestamp() {
+      // TODO
       return this.timestamp;
     }
   },
@@ -81,8 +87,16 @@ export default {
         }
       );
     },
-    submit() {
-      StorageService.uploadFile(this.file, 'images');
+    async submit() {
+      const photo = await StorageService.uploadFile(this.file, 'images');
+      await DatabaseService.addLocation({
+        position: this.location,
+        photo,
+        category: this.category,
+        crowdSize: null,
+        timestamp: this.timestamp
+      });
+      this.$router.go(-1);
     }
   }
 };
@@ -98,7 +112,7 @@ export default {
   width: 991px;
   height: 780px;
   object-fit: cover;
-  clip-path: url(#myClip);
+  /* clip-path: url(#myClip); */
 }
 
 .title-and-description {
@@ -119,11 +133,23 @@ export default {
 }
 
 .location-fields {
+  position: absolute;
+  right: 120px;
+  bottom: 340px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
 .field-name {
+}
+
+.field-value {
+}
+
+.submit-btn {
+  position: absolute;
+  right: 120px;
+  bottom: 120px;
 }
 </style>

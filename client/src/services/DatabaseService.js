@@ -15,9 +15,16 @@ export default {
           lng: data.position.longitude
         },
         photo: data.photo,
+        category: data.category,
         crowdSize: data.crowdSize,
         timestamp: data.timestamp
       };
     });
+  },
+  addLocation(location) {
+    return firebase
+      .firestore()
+      .collection('locations')
+      .add(location);
   }
 };
