@@ -3,6 +3,8 @@
     <img :src="location.photo" class="location-photo" />
     <div class="location-fields">
       <h1 class="title">{{ locationName }}</h1>
+      <span class="field-name">Estimated Crowd Size</span>
+      <span class="field-value">{{ location.crowdSize }}</span>
       <span class="field-name">Location</span>
       <span class="field-value">
         Latitude: {{ location.position.lat }}, Longitude:
