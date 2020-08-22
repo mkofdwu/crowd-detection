@@ -9,7 +9,7 @@ import store from './store';
 import './registerServiceWorker';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyA8RKRG4elTVBMbCmgFSV7qYhcb7XfU8G8',
+  apiKey: process.env.VUE_APP_FIREBASE_API_KEY,
   authDomain: 'crowd-density.firebaseapp.com',
   databaseURL: 'https://crowd-density.firebaseio.com',
   projectId: 'crowd-density',
@@ -21,7 +21,7 @@ firebase.initializeApp(firebaseConfig);
 
 Vue.use(VueGoogleMaps, {
   load: {
-    key: 'AIzaSyCao_rOu22gHeo659xzAozYvtyjuiXyM4s'
+    key: process.env.VUE_APP_GOOGLE_API_KEY
   },
   installComponents: true
 });
