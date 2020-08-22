@@ -1,6 +1,6 @@
 <template>
   <div v-if="imgData" class="add-location-page">
-    <img :src="imgData" class="location-photo" />
+    <img ref="photo" :src="imgData" class="location-photo" />
     <div class="darken-overlay"></div>
     <svg viewBox="0 0 848.5 1024" width="60%" style="display: none">
       <defs>
@@ -38,6 +38,7 @@ import { firestore } from 'firebase';
 
 import StorageService from '@/services/StorageService';
 import DatabaseService from '@/services/DatabaseService';
+import MLService from '@/services/MLService';
 
 import AssetIcon from '@/components/AssetIcon.vue';
 import CategorySelect from '@/components/CategorySelect.vue';
@@ -109,7 +110,6 @@ export default {
     askLocation() {
       navigator.geolocation.getCurrentPosition(
         pos => {
-          console.log(pos);
           this.location = pos.coords;
         },
         err => {
@@ -118,6 +118,14 @@ export default {
       );
     },
     submit() {
+      // const url = URL.createObjectURL(this.file);
+      // const image = new Image();
+      // image.onload = () => {
+      //   URL.revokeObjectURL(image.src);
+      //   new ImageData()
+      // }
+      MLService.predictCrowdCount(this.$refs.photo);
+
       // TODO: data validation
       StorageService.uploadFile(this.file, 'images', photo => {
         DatabaseService.addLocation({

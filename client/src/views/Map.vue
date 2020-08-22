@@ -3,7 +3,7 @@
     <GmapMap
       class="map"
       map-type-id="terrain"
-      :center="{ lat: 0, lng: 0 }"
+      :center="{ lat: 1.3521, lng: 103.8198 }"
       :zoom="10"
       :options="{
         zoomControl: true,
@@ -53,8 +53,13 @@
             Around {{ selectedLocation.crowdSize }} people
           </span>
         </div>
-        <span></span>
       </GmapInfoWindow>
+      <GmapMarker
+        v-if="currentPosition"
+        :position="currentPosition"
+        :clickable="false"
+        :zIndex="10"
+      />
     </GmapMap>
 
     <category-filter-button v-model="categoryFilter" />
@@ -99,7 +104,8 @@ export default {
       locations: [],
       loaded: false,
       selectedLocation: null,
-      categoryFilter: ''
+      categoryFilter: '',
+      currentPosition: null
     };
   },
   computed: {
@@ -113,6 +119,20 @@ export default {
   async created() {
     this.locations.push(...(await DatabaseService.getLocations()));
     this.loaded = true;
+
+    // TODO: modal to ask for current location
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        this.currentPosition = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude
+        };
+        console.log(this.currentPosition);
+      },
+      err => {
+        console.log(err);
+      }
+    );
   },
   methods: {
     // utils
