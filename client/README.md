@@ -1,5 +1,7 @@
 # client
 
+add .env file containing VUE_APP_FIREBASE_API_KEY and VUE_APP_GOOGLE_API_KEY
+
 ## Project setup
 ```
 npm install
