@@ -1,11 +1,16 @@
 import firebase from 'firebase';
 
 export default {
-  async uploadFile(file, prefix) {
-    const uploadTask = firebase
+  uploadFile(file, prefix, callback) {
+    firebase
       .storage()
-      .ref(prefix + '/' + file.name)
-      .put(file);
-    return (await uploadTask).downloadURL;
+      .ref()
+      .child(prefix + '/' + file.name)
+      .put(file)
+      .then(snapshot => {
+        snapshot.ref
+          .getDownloadURL()
+          .then(downloadURL => callback(downloadURL));
+      });
   }
 };

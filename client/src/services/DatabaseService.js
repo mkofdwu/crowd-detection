@@ -17,7 +17,7 @@ export default {
         photo: data.photo,
         category: data.category,
         crowdSize: data.crowdSize,
-        timestamp: data.timestamp
+        timestamp: data.timestamp.seconds * 1000
       };
     });
   },

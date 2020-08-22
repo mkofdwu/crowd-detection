@@ -14,9 +14,10 @@
         fullscreenControl: true,
         disableDefaultUi: false
       }"
+      @idle="removeInfoWindowCloseBtn"
     >
       <GmapInfoWindow
-        v-for="location in locations"
+        v-for="location in filteredLocations"
         :key="location.id"
         :position="location.position"
         :zIndex="0"
@@ -28,7 +29,7 @@
           }"
           @click="selectedLocation = location"
         >
-          {{ location.crowdSize }}
+          {{ location.crowdSize || '?' }}
         </span>
       </GmapInfoWindow>
       <GmapInfoWindow
@@ -37,10 +38,26 @@
         :zIndex="1"
         @closeclick="selectedLocation = null"
       >
-        <img class="location-photo" :src="selectedLocation.photo" />
+        <div
+          class="location-preview-container"
+          @click="
+            $router.push({
+              name: 'location-details',
+              params: { location: selectedLocation }
+            })
+          "
+        >
+          <img class="location-photo" :src="selectedLocation.photo" />
+          <div class="location-photo-gradient"></div>
+          <span v-if="selectedLocation.crowdSize" class="location-crowd-size">
+            Around {{ selectedLocation.crowdSize }} people
+          </span>
+        </div>
+        <span></span>
       </GmapInfoWindow>
     </GmapMap>
 
+    <category-filter-button v-model="categoryFilter" />
     <label class="file-upload-container">
       <input
         class="file-input"
@@ -49,7 +66,7 @@
         capture="camera"
         @change="onSelectPhoto"
       />
-      <div class="add-photo-camera btn" @click="addPhotoCamera">
+      <div class="add-photo-camera icon-btn">
         <asset-icon name="camera" />
       </div>
     </label>
@@ -60,7 +77,7 @@
         accept="image/*"
         @change="onSelectPhoto"
       />
-      <div class="add-photo-gallery btn">
+      <div class="add-photo-gallery icon-btn">
         <asset-icon name="gallery" />
       </div>
     </label>
@@ -73,19 +90,28 @@ import DatabaseService from '@/services/DatabaseService';
 
 import Loader from '@/components/Loader.vue';
 import AssetIcon from '@/components/AssetIcon.vue';
+import CategoryFilterButton from '@/components/CategoryFilterButton.vue';
 
 export default {
-  components: { Loader, AssetIcon },
+  components: { Loader, AssetIcon, CategoryFilterButton },
   data() {
     return {
       locations: [],
       loaded: false,
-      selectedLocation: null
+      selectedLocation: null,
+      categoryFilter: ''
     };
   },
-  async mounted() {
+  computed: {
+    filteredLocations() {
+      if (!this.categoryFilter) return this.locations;
+      return this.locations.filter(
+        location => location.category === this.categoryFilter
+      );
+    }
+  },
+  async created() {
     this.locations.push(...(await DatabaseService.getLocations()));
-    console.log(this.locations[0]);
     this.loaded = true;
   },
   methods: {
@@ -107,14 +133,18 @@ export default {
     onSelectPhoto(e) {
       if (e.target.files && e.target.files.length === 1) {
         const file = e.target.files[0];
-        // TODO: show modal describing / asking for permission
         this.$router.push({
           name: 'add-location',
           params: { file, timestamp: Date.now() }
         });
       }
     },
-    addPhotoCamera() {}
+    removeInfoWindowCloseBtn() {
+      const infoWindowCloseBtns = document.querySelectorAll(
+        'button[title="Close"]'
+      );
+      infoWindowCloseBtns.forEach(el => el.remove());
+    }
   }
 };
 </script>
@@ -125,40 +155,41 @@ export default {
   height: 100vh;
 }
 
-.location-photo {
-  width: 200px;
-}
-
 .file-input {
   display: none;
 }
 
-.btn {
-  position: absolute;
-  left: 30px;
-  width: 50px;
-  height: 50px;
-  border-radius: 7px;
-  cursor: pointer;
-  box-shadow: 0 20px 20px #00000099;
-  transition: box-shadow 200ms, transform 200ms;
-
-  display: grid;
-  place-items: center;
-}
-
-.btn.add-photo-camera {
+.icon-btn.add-photo-camera {
   background-color: #ffffff;
   bottom: 100px;
 }
 
-.btn.add-photo-gallery {
+.icon-btn.add-photo-gallery {
   background-color: #2e2e2e;
   bottom: 30px;
 }
 
-.btn:active {
-  transform: translateY(5px);
-  box-shadow: 0 10px 20px #00000099;
+.location-preview-container {
+  position: relative;
+  cursor: pointer;
+}
+
+.location-photo {
+  width: 200px;
+}
+
+.location-photo-gradient {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 100px;
+  background-image: linear-gradient(#00000000, #000000aa);
+}
+
+.location-crowd-size {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  color: white;
 }
 </style>
