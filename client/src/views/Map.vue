@@ -1,6 +1,6 @@
 <template>
   <div v-if="loaded" class="map-page">
-    <GmapMap
+    <!-- <GmapMap
       class="map"
       map-type-id="terrain"
       :center="{ lat: 1.3521, lng: 103.8198 }"
@@ -60,7 +60,12 @@
         :clickable="false"
         :zIndex="10"
       />
-    </GmapMap>
+    </GmapMap> -->
+    <div
+      style="width: 100vw; height: 100vh; display: grid; place-items: center; background-color: #eeeeee;"
+    >
+      I've removed google maps billing so this no longer works
+    </div>
 
     <category-filter-button v-model="categoryFilter" />
     <label class="file-upload-container">
